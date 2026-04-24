@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>friedegg dashboard</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="fej-header">
+    <div class="fej-brand">
+      <div class="fej-logo-circle">
+        <span class="fej-yolk"></span>
+      </div>
+      <div>
+        <h1>friedegg</h1>
+        <p class="tagline">See your automations glow.</p>
+      </div>
+    </div>
+    <div class="fej-status">
+      <span id="conn-indicator" class="dot dot-pending"></span>
+      <span id="conn-label">Connecting…</span>
+    </div>
+  </header>
+
+  <main class="fej-main">
+    <section id="workflow-card" class="card hidden">
+      <div class="card-header">
+        <h2 id="workflow-name">—</h2>
+        <span id="workflow-status" class="pill pill-pending">Waiting</span>
+      </div>
+      <ol id="step-list" class="step-list"></ol>
+    </section>
+
+    <section id="empty-state" class="empty-state">
+      <p>Run your automation to see it appear here in real time.</p>
+      <pre class="code-hint">from friedegg import monitor
+
+monitor.start("My workflow")
+monitor.step("Step one")
+monitor.step("Step two")
+monitor.done()</pre>
+    </section>
+  </main>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>
