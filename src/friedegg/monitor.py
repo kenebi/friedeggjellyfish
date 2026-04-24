@@ -195,15 +195,26 @@ class _Monitor:
         """
         Mark a step in the workflow.
 
-        If a previous step was marked "running" and a new step starts,
-        the previous one is auto-finalized to "done" with its duration.
+        If a previous step is still open, it is auto-finalized to "done"
+        with its measured duration before the new step is emitted.
         """
         self._ensure_started()
 
         now = time.monotonic()
-        duration_ms: float | None = None
-        if self._step_start is not None and self._last_step_name != step_name:
-            duration_ms = (now - self._step_start) * 1000
+
+        # Auto-close the previous step before opening a new one.
+        if self._last_step_name is not None and self._last_step_name != step_name:
+            prev_duration_ms: float | None = None
+            if self._step_start is not None:
+                prev_duration_ms = (now - self._step_start) * 1000
+            self._sender.send(Event(  # type: ignore[union-attr]
+                event_type="step",
+                run_id=self._run_id,  # type: ignore[arg-type]
+                workflow_name=self._workflow_name,  # type: ignore[arg-type]
+                step_name=self._last_step_name,
+                status="done",
+                duration_ms=prev_duration_ms,
+            ))
 
         self._sender.send(Event(  # type: ignore[union-attr]
             event_type="step",
@@ -211,7 +222,7 @@ class _Monitor:
             workflow_name=self._workflow_name,  # type: ignore[arg-type]
             step_name=step_name,
             status=status,
-            duration_ms=duration_ms,
+            duration_ms=None,
             metadata=metadata or {},
         ))
 
@@ -245,6 +256,21 @@ class _Monitor:
     def done(self) -> None:
         """Mark the workflow complete."""
         self._ensure_started()
+
+        # Close the last step if it is still open.
+        if self._last_step_name is not None:
+            now = time.monotonic()
+            last_duration_ms: float | None = None
+            if self._step_start is not None:
+                last_duration_ms = (now - self._step_start) * 1000
+            self._sender.send(Event(  # type: ignore[union-attr]
+                event_type="step",
+                run_id=self._run_id,  # type: ignore[arg-type]
+                workflow_name=self._workflow_name,  # type: ignore[arg-type]
+                step_name=self._last_step_name,
+                status="done",
+                duration_ms=last_duration_ms,
+            ))
 
         self._sender.send(Event(  # type: ignore[union-attr]
             event_type="workflow_done",
