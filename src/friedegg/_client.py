@@ -1,5 +1,5 @@
 """
-friedegg.monitor — Client-side monitoring API.
+friedegg._client — Client-side monitoring API.
 
 This module is imported by the user's automation script. It sends status
 events to the local FEJ dashboard server over WebSocket. If the dashboard

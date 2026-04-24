@@ -15,7 +15,7 @@ Run the dashboard in a separate terminal:
     friedegg dashboard
 """
 
-from friedegg.monitor import monitor
+from friedegg._client import monitor
 
 __version__ = "0.1.0"
 __all__ = ["monitor"]
