@@ -52,3 +52,6 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 friedegg = ["dashboard/*.html", "dashboard/*.css", "dashboard/*.js"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
