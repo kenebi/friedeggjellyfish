@@ -147,4 +147,4 @@ MIT. See [LICENSE](LICENSE).
 
 ## Attribution
 
-Built by [Kenneth Ebilane](https://github.com/kenebi) / [AVI Lane Digital](https://avilane.com).
+Built by [Kenneth Ebilane](https://github.com/kenebi).
