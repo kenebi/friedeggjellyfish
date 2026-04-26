@@ -1,4 +1,4 @@
-<img src="design/AVILANE_FEJ_LOGO_20260423_CLD_v1.svg" alt="Fried Egg Jellyfish logo" width="180">
+<img src="design/fej_logo.svg" alt="Fried Egg Jellyfish logo" width="180">
 
 # friedeggjellyfish
 
