@@ -1,5 +1,5 @@
 """
-friedegg.server — Local FastAPI server for the FEJ dashboard.
+friedeggjellyfish.server — Local FastAPI server for the FEJ dashboard.
 
 Two WebSocket endpoints:
   /ws/ingest    — receives events from user automation scripts (_client.py)
@@ -8,10 +8,10 @@ Two WebSocket endpoints:
 Plus a static route at / that serves the dashboard HTML/CSS/JS.
 
 Run with:
-    uvicorn friedegg.server:app --host 127.0.0.1 --port 8765
+    uvicorn friedeggjellyfish.server:app --host 127.0.0.1 --port 8765
 
 Or via the CLI:
-    friedegg dashboard
+    friedeggjellyfish dashboard
 """
 
 from __future__ import annotations
@@ -28,7 +28,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-_LOGGER = logging.getLogger("friedegg.server")
+_LOGGER = logging.getLogger("friedeggjellyfish.server")
 
 # Dashboard static files live next to this module.
 _DASHBOARD_DIR = Path(__file__).parent / "dashboard"
@@ -132,7 +132,7 @@ broadcaster = Broadcaster()
 # FastAPI app
 # ---------------------------------------------------------------------------
 
-app = FastAPI(title="friedegg dashboard", version="0.1.0")
+app = FastAPI(title="friedeggjellyfish dashboard", version="0.1.0")
 
 
 @app.websocket("/ws/ingest")
@@ -182,7 +182,7 @@ async def index() -> FileResponse:
 
 @app.get("/health")
 async def health() -> dict[str, str]:
-    return {"status": "ok", "service": "friedegg"}
+    return {"status": "ok", "service": "friedeggjellyfish"}
 
 
 # Mount static files last so it doesn't swallow the routes above.

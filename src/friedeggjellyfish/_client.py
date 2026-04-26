@@ -1,12 +1,12 @@
 """
-friedegg._client — Client-side monitoring API.
+friedeggjellyfish._client — Client-side monitoring API.
 
 This module is imported by the user's automation script. It sends status
 events to the local FEJ dashboard server over WebSocket. If the dashboard
 isn't running, events are silently dropped so the automation still works.
 
 Example:
-    from friedegg import monitor
+    from friedeggjellyfish import monitor
 
     monitor.start("Daily lead report")
     monitor.step("Connect to HubSpot")
@@ -35,7 +35,7 @@ except ImportError:  # pragma: no cover
     connect = None  # type: ignore
     WebSocketException = Exception  # type: ignore
 
-_LOGGER = logging.getLogger("friedegg")
+_LOGGER = logging.getLogger("friedeggjellyfish")
 
 DEFAULT_WS_URL = "ws://127.0.0.1:8765/ws/ingest"
 
@@ -91,7 +91,7 @@ class _Sender:
             return
         self._thread = threading.Thread(
             target=self._run,
-            name="friedegg-sender",
+            name="friedeggjellyfish-sender",
             daemon=True,
         )
         self._thread.start()
@@ -135,7 +135,7 @@ class _Sender:
         if not self._warned_once:
             _LOGGER.warning(
                 "FEJ: %s. Automation will continue without monitoring. "
-                "Run `friedegg dashboard` in another terminal to enable.",
+                "Run `friedeggjellyfish dashboard` in another terminal to enable.",
                 reason,
             )
             self._warned_once = True
@@ -147,7 +147,7 @@ class _Sender:
 
 class _Monitor:
     """
-    The singleton monitor instance exposed as `friedegg.monitor`.
+    The singleton monitor instance exposed as `friedeggjellyfish.monitor`.
 
     Tracks a single active workflow run. Auto-timestamps steps and measures
     step durations.
@@ -373,7 +373,7 @@ class _Monitor:
     def _ensure_started(self) -> None:
         if self._run_id is None or self._sender is None:
             raise RuntimeError(
-                "friedegg: monitor.start() must be called before step/warn/error/done."
+                "friedeggjellyfish: monitor.start() must be called before step/warn/error/done."
             )
 
 

@@ -6,12 +6,12 @@ captures the traceback automatically, and the workflow completes with
 "DONE WITH ERRORS".
 
 Before running:
-  1. In a separate terminal with (.venv) active: friedegg dashboard
+  1. In a separate terminal with (.venv) active: friedeggjellyfish dashboard
   2. Then run this file: python examples/error_smoke_test.py
 """
 
 import time
-from friedegg import monitor
+from friedeggjellyfish import monitor
 
 monitor.start(
     "Payment Sync",

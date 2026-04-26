@@ -1,9 +1,9 @@
 """
-Fried Egg Jellyfish (FEJ) — Real-time visual monitoring for code-built automations.
+Fried Egg Jellyfish — Real-time visual monitoring for code-built automations.
 
 Basic usage:
 
-    from friedegg import monitor
+    from friedeggjellyfish import monitor
 
     monitor.start("My workflow")
     monitor.step("Connect to API")
@@ -12,10 +12,10 @@ Basic usage:
 
 Run the dashboard in a separate terminal:
 
-    friedegg dashboard
+    friedeggjellyfish dashboard
 """
 
-from friedegg._client import monitor
+from friedeggjellyfish._client import monitor
 
 __version__ = "0.1.0"
 __all__ = ["monitor"]

@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from friedegg._client import _Monitor, Event
+from friedeggjellyfish._client import _Monitor, Event
 
 _DEAD_URL = "ws://127.0.0.1:19999/ws/ingest"  # nothing listening here
 

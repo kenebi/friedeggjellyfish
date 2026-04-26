@@ -7,13 +7,13 @@ Exercises Phase 1.2 features:
   - All four jellyfish states visible in the timeline
 
 Before running:
-  1. In a separate terminal with (.venv) active, run: friedegg dashboard
+  1. In a separate terminal with (.venv) active, run: friedeggjellyfish dashboard
   2. The browser should open at http://127.0.0.1:8765
   3. Then run this file: python examples/smoke_test.py
 """
 
 import time
-from friedegg import monitor
+from friedeggjellyfish import monitor
 
 monitor.start(
     "Daily Lead Report",

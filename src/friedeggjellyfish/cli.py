@@ -1,11 +1,11 @@
 """
-friedegg.cli — Command-line entry point.
+friedeggjellyfish.cli — Command-line entry point.
 
-Exposes the `friedegg` command after `pip install friedegg`:
+Exposes the `friedeggjellyfish` command after `pip install friedeggjellyfish`:
 
-    friedegg dashboard             # launch the dashboard server
-    friedegg dashboard --port 9000 # on a different port
-    friedegg --version
+    friedeggjellyfish dashboard             # launch the dashboard server
+    friedeggjellyfish dashboard --port 9000 # on a different port
+    friedeggjellyfish --version
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ import threading
 import time
 import webbrowser
 
-from friedegg import __version__
+from friedeggjellyfish import __version__
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
@@ -36,7 +36,7 @@ def _open_browser_delayed(url: str, delay: float = 1.0) -> None:
 
 
 def _cmd_dashboard(args: argparse.Namespace) -> int:
-    import uvicorn  # imported lazily so `friedegg --version` stays fast
+    import uvicorn  # imported lazily so `friedeggjellyfish --version` stays fast
 
     url = f"http://{args.host}:{args.port}"
     print(f"FEJ dashboard starting on {url}")
@@ -46,7 +46,7 @@ def _cmd_dashboard(args: argparse.Namespace) -> int:
         _open_browser_delayed(url)
 
     uvicorn.run(
-        "friedegg.server:app",
+        "friedeggjellyfish.server:app",
         host=args.host,
         port=args.port,
         log_level=args.log_level,
@@ -57,13 +57,13 @@ def _cmd_dashboard(args: argparse.Namespace) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="friedegg",
+        prog="friedeggjellyfish",
         description="Fried Egg Jellyfish — real-time visual monitoring for code-built automations.",
     )
     parser.add_argument(
         "--version",
         action="version",
-        version=f"friedegg {__version__}",
+        version=f"friedeggjellyfish {__version__}",
     )
 
     sub = parser.add_subparsers(dest="command", required=True)

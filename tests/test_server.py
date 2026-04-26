@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from starlette.testclient import TestClient
 
-from friedegg.server import app, Broadcaster, broadcaster
+from friedeggjellyfish.server import app, Broadcaster, broadcaster
 
 _WORKFLOW_EVENT = {
     "event_type": "workflow_start",
@@ -45,7 +45,7 @@ class TestBroadcaster:
         assert list(bc._history)[0]["run_id"] == "new"
 
     def test_maxlen_not_exceeded(self):
-        from friedegg.server import _HISTORY_MAXLEN
+        from friedeggjellyfish.server import _HISTORY_MAXLEN
         bc = Broadcaster()
         for i in range(_HISTORY_MAXLEN + 10):
             asyncio.run(bc.publish({"run_id": str(i)}))
