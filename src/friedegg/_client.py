@@ -10,12 +10,13 @@ Example:
 
     monitor.start("Daily lead report")
     monitor.step("Connect to HubSpot")
-    monitor.step("Pull new leads")
+    monitor.step("Pull new leads", description="Fetching from CRM")
     monitor.done()
 """
 
 from __future__ import annotations
 
+import atexit
 import json
 import logging
 import queue
@@ -36,7 +37,6 @@ except ImportError:  # pragma: no cover
 
 _LOGGER = logging.getLogger("friedegg")
 
-# Default local dashboard endpoint.
 DEFAULT_WS_URL = "ws://127.0.0.1:8765/ws/ingest"
 
 
@@ -52,12 +52,12 @@ def _now_iso() -> str:
 @dataclass
 class Event:
     """Single status event sent to the dashboard."""
-    event_type: str                 # "workflow_start" | "step" | "error" | "workflow_done"
-    run_id: str                     # UUID for this workflow run
+    event_type: str          # "workflow_start" | "step" | "warn" | "error" | "workflow_done"
+    run_id: str
     workflow_name: str
     timestamp: str = field(default_factory=_now_iso)
     step_name: str | None = None
-    status: str | None = None       # "pending" | "running" | "done" | "error"
+    status: str | None = None    # "pending" | "running" | "done" | "warn" | "error"
     duration_ms: float | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
     error_message: str | None = None
@@ -122,7 +122,6 @@ class _Sender:
                         return
         except (ConnectionRefusedError, OSError, WebSocketException) as exc:
             self._warn_disconnected(f"dashboard not reachable ({exc})")
-            # Drain the queue so producers don't block forever.
             self._drain()
 
     def _drain(self) -> None:
@@ -184,19 +183,30 @@ class _Monitor:
             workflow_name=workflow_name,
             metadata={"description": description} if description else {},
         ))
+
+        atexit.register(self._atexit_finalize)
         return self._run_id
 
     def step(
         self,
         step_name: str,
-        status: str = "done",
+        description: str | None = None,
+        status: str = "running",
         metadata: dict[str, Any] | None = None,
     ) -> None:
         """
-        Mark a step in the workflow.
+        Mark a step in the workflow as starting.
 
         If a previous step is still open, it is auto-finalized to "done"
         with its measured duration before the new step is emitted.
+
+        Args:
+            step_name:   Name of this step.
+            description: Optional short description shown under the step name
+                         in the dashboard.
+            status:      Initial status. Default is "running"; pass "done" to
+                         mark a step as immediately complete (unusual).
+            metadata:    Arbitrary key/value pairs merged with description.
         """
         self._ensure_started()
 
@@ -216,6 +226,10 @@ class _Monitor:
                 duration_ms=prev_duration_ms,
             ))
 
+        meta = dict(metadata or {})
+        if description is not None:
+            meta["description"] = description
+
         self._sender.send(Event(  # type: ignore[union-attr]
             event_type="step",
             run_id=self._run_id,  # type: ignore[arg-type]
@@ -223,11 +237,34 @@ class _Monitor:
             step_name=step_name,
             status=status,
             duration_ms=None,
-            metadata=metadata or {},
+            metadata=meta,
         ))
 
         self._step_start = now
         self._last_step_name = step_name
+
+    def warn(
+        self,
+        message: str,
+        details: str | None = None,
+        step_name: str | None = None,
+    ) -> None:
+        """
+        Report a warning. Informational only — does not terminate the workflow.
+
+        The current step's marker in the dashboard turns burnt orange.
+        Subsequent step() calls work normally.
+        """
+        self._ensure_started()
+        self._sender.send(Event(  # type: ignore[union-attr]
+            event_type="warn",
+            run_id=self._run_id,  # type: ignore[arg-type]
+            workflow_name=self._workflow_name,  # type: ignore[arg-type]
+            step_name=step_name or self._last_step_name,
+            status="warn",
+            error_message=message,
+            error_traceback=details,
+        ))
 
     def error(
         self,
@@ -235,7 +272,12 @@ class _Monitor:
         details: str | None = None,
         step_name: str | None = None,
     ) -> None:
-        """Report an error. `details` may be a traceback string."""
+        """
+        Report an error. Informational only — does not terminate the workflow.
+
+        The current step's marker in the dashboard turns red. The user's
+        script controls flow; call raise() yourself to stop execution.
+        """
         self._ensure_started()
 
         if details is None:
@@ -280,18 +322,58 @@ class _Monitor:
         ))
         self._sender.stop()  # type: ignore[union-attr]
 
-        # Reset state for the next workflow
+        # Reset state — _run_id=None is the atexit guard signal.
         self._run_id = None
         self._workflow_name = None
         self._step_start = None
         self._last_step_name = None
+        self._sender = None
 
     # -- internals --------------------------------------------------------
+
+    def _atexit_finalize(self) -> None:
+        """
+        Safety net: if the script exits without calling done(), emit a
+        terminal event so the dashboard doesn't sit stuck at "Running".
+        """
+        if self._run_id is None:
+            return  # done() was already called — nothing to do
+        if self._sender is None:
+            return
+
+        run_id = self._run_id
+        self._run_id = None  # prevent double-firing if registered multiple times
+
+        # Close any open step as errored.
+        if self._last_step_name is not None:
+            now = time.monotonic()
+            duration_ms = (now - self._step_start) * 1000 if self._step_start else None
+            self._sender.send(Event(
+                event_type="step",
+                run_id=run_id,
+                workflow_name=self._workflow_name,  # type: ignore[arg-type]
+                step_name=self._last_step_name,
+                status="error",
+                duration_ms=duration_ms,
+                error_message="Workflow ended without monitor.done() — script may have crashed.",
+            ))
+
+        self._sender.send(Event(
+            event_type="workflow_done",
+            run_id=run_id,
+            workflow_name=self._workflow_name,  # type: ignore[arg-type]
+            status="done",
+        ))
+        self._sender.stop()
+
+        # Give the daemon thread a moment to drain before the process exits.
+        if self._sender._thread and self._sender._thread.is_alive():
+            self._sender._thread.join(timeout=2.0)
 
     def _ensure_started(self) -> None:
         if self._run_id is None or self._sender is None:
             raise RuntimeError(
-                "friedegg: monitor.start() must be called before step/error/done."
+                "friedegg: monitor.start() must be called before step/warn/error/done."
             )
 
 

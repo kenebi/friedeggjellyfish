@@ -1,15 +1,23 @@
 /* ============================================================
-   friedegg dashboard — brand palette from BRAND.md
+   friedegg dashboard — Phase 1.2
+   Brand palette from BRAND.md
    ============================================================ */
-:root {
-  --fej-gold:  #F9AA10;
-  --fej-navy:  #1B3C5A;
-  --fej-teal:  #22A3A4;
-  --fej-white: #FDFEFE;
-  --fej-error: #D64545;
 
-  --fej-pending: rgba(27, 60, 90, 0.2);
-  --fej-text-muted: rgba(27, 60, 90, 0.65);
+@import url("/static/fej_logo_animation.css");
+
+:root {
+  --fej-gold:        #F9AA10;
+  --fej-navy:        #1B3C5A;
+  --fej-teal:        #22A3A4;
+  --fej-white:       #FDFEFE;
+  --fej-error:       #D64545;
+  --fej-warn:        #E87528;
+  --fej-gray:        #888780;
+  --fej-gray-light:  #B4B2A9;
+
+  --fej-pending-bg:  rgba(27, 60, 90, 0.08);
+  --fej-border:      rgba(27, 60, 90, 0.15);
+  --fej-text-muted:  rgba(27, 60, 90, 0.55);
 }
 
 * { box-sizing: border-box; }
@@ -28,8 +36,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 32px;
-  border-bottom: 1px solid var(--fej-pending);
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--fej-border);
 }
 
 .fej-brand {
@@ -38,34 +46,30 @@ body {
   gap: 14px;
 }
 
-.fej-logo-circle {
+.fej-header-logo {
   width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--fej-white);
-  border: 3px solid var(--fej-navy);
-  position: relative;
-  box-shadow: 3px 3px 0 var(--fej-teal);
+  height: 52px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.fej-yolk {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--fej-gold);
+.fej-header-logo svg {
+  width: 44px;
+  height: 52px;
 }
 
-.fej-brand h1 {
+.fej-brand-text h1 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
   letter-spacing: -0.01em;
+  line-height: 1.2;
 }
 
-.fej-brand .tagline {
-  margin: 2px 0 0;
+.fej-brand-text .tagline {
+  margin: 3px 0 0;
   font-size: 12px;
   color: var(--fej-text-muted);
 }
@@ -80,143 +84,401 @@ body {
 }
 
 .dot {
-  width: 10px; height: 10px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
 }
-.dot-pending   { background: var(--fej-pending); }
-.dot-running   { background: var(--fej-gold); animation: pulse 1.2s ease-in-out infinite; }
+.dot-pending   { background: var(--fej-gray-light); }
 .dot-connected { background: var(--fej-teal); }
+.dot-running   { background: var(--fej-gold); animation: dot-blink 1.2s ease-in-out infinite; }
 .dot-error     { background: var(--fej-error); }
 
-@keyframes pulse {
+@keyframes dot-blink {
   0%, 100% { opacity: 1; }
-  50%      { opacity: 0.4; }
+  50%      { opacity: 0.35; }
 }
 
-/* -------- main content -------- */
+/* -------- layout -------- */
 .fej-main {
-  max-width: 780px;
+  max-width: 820px;
   margin: 0 auto;
-  padding: 32px;
+  padding: 28px 32px 48px;
 }
 
 .hidden { display: none !important; }
 
+/* -------- workflow card -------- */
 .card {
   background: var(--fej-white);
-  border: 1px solid var(--fej-pending);
-  border-radius: 12px;
-  padding: 24px;
+  border: 1px solid var(--fej-border);
+  border-radius: 14px;
+  padding: 24px 28px 28px;
   box-shadow: 4px 4px 0 var(--fej-teal);
+  margin-bottom: 24px;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20px;
 }
 
 .card-header h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--fej-text-muted);
 }
 
-/* -------- pills (workflow status) -------- */
+/* -------- current step display -------- */
+.current-step-block {
+  margin-bottom: 32px;
+}
+
+.current-step-name {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  color: var(--fej-navy);
+}
+
+.current-step-desc {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--fej-text-muted);
+  line-height: 1.45;
+}
+
+/* -------- pills -------- */
 .pill {
-  font-size: 12px;
-  font-weight: 500;
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
   padding: 4px 12px;
   border-radius: 999px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
-.pill-pending { background: var(--fej-pending); color: var(--fej-navy); }
-.pill-running { background: var(--fej-gold); color: var(--fej-navy); }
-.pill-done    { background: var(--fej-navy); color: var(--fej-white); }
-.pill-error   { background: var(--fej-error); color: var(--fej-white); }
+.pill-running          { background: var(--fej-gold);  color: var(--fej-navy); }
+.pill-done             { background: var(--fej-navy);  color: var(--fej-white); }
+.pill-done-warnings    { background: var(--fej-warn);  color: var(--fej-white); }
+.pill-done-errors      { background: var(--fej-error); color: var(--fej-white); }
+.pill-pending          { background: var(--fej-pending-bg); color: var(--fej-navy); }
 
-/* -------- step list -------- */
-.step-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* -------- step timeline (boustrophedon) -------- */
+.step-timeline {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
+  overflow: visible;
 }
 
-.step {
+/* One horizontal row of jellyfish + connectors */
+.timeline-row {
+  display: flex;
+  align-items: flex-end;  /* align to bottom so duration labels line up */
+  flex-wrap: nowrap;
+  gap: 0;
+}
+
+/* Even rows (0-indexed): right-to-left visually */
+.timeline-row-rtl {
+  flex-direction: row-reverse;
+}
+
+/* Flip jellyfish in RTL rows */
+.timeline-row-rtl .step-jelly {
+  transform: scaleX(-1);
+}
+
+/* -------- step marker (jelly + duration label) -------- */
+.step-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  cursor: default;
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.step-jelly {
+  width: 36px;
+  height: 43px;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* The fej-logo class is applied by JS to enable animation CSS targeting */
+.step-jelly.fej-logo {
+  width: 36px;
+  height: 43px;
+}
+
+.step-duration-label {
+  font-size: 10px;
+  color: var(--fej-text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  min-width: 40px;
+  line-height: 1;
+}
+
+/* -------- connector dots (horizontal, between steps) -------- */
+.connector {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: var(--fej-white);
-  border: 1px solid var(--fej-pending);
-  transition: all 0.2s ease;
-}
-
-.step-marker {
-  width: 14px; height: 14px;
-  border-radius: 50%;
+  gap: 4px;
+  padding: 0 6px;
   flex-shrink: 0;
-  background: var(--fej-pending);
+  /* vertical offset to align dots with jelly midpoint */
+  padding-bottom: 22px;
 }
 
-.step.running .step-marker {
-  background: var(--fej-gold);
-  animation: pulse 1.2s ease-in-out infinite;
-}
-.step.done .step-marker    { background: var(--fej-navy); }
-.step.error .step-marker   { background: var(--fej-error); }
-
-.step-name {
-  flex: 1;
-  font-size: 14px;
+.connector-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fej-gray);
+  opacity: 0.3;
+  flex-shrink: 0;
 }
 
-.step-duration {
+/* connector states */
+.connector-active .connector-dot:nth-child(1) {
+  animation: conn-wave 0.6s ease-in-out 0s infinite;
+}
+.connector-active .connector-dot:nth-child(2) {
+  animation: conn-wave 0.6s ease-in-out 0.2s infinite;
+}
+.connector-active .connector-dot:nth-child(3) {
+  animation: conn-wave 0.6s ease-in-out 0.4s infinite;
+}
+
+@keyframes conn-wave {
+  0%, 100% { opacity: 0.3; }
+  50%       { opacity: 1; background: var(--fej-gold); }
+}
+
+.connector-gold  .connector-dot { background: var(--fej-gold);  opacity: 1; }
+.connector-warn  .connector-dot { background: var(--fej-warn);  opacity: 1; }
+.connector-error .connector-dot { background: var(--fej-error); opacity: 1; }
+
+/* -------- corner connector (L-shape between rows) -------- */
+.corner-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 10px 0;
+}
+
+.corner-connector.corner-right {
+  align-items: flex-end;
+  padding-right: 21px; /* ~center of rightmost jelly */
+}
+
+.corner-connector.corner-left {
+  align-items: flex-start;
+  padding-left: 21px; /* ~center of leftmost jelly */
+}
+
+.corner-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fej-gray);
+  opacity: 0.3;
+  flex-shrink: 0;
+}
+
+/* -------- tooltip -------- */
+.step-tooltip {
+  position: fixed;
+  z-index: 100;
+  background: var(--fej-navy);
+  color: var(--fej-white);
+  padding: 10px 14px;
+  border-radius: 10px;
   font-size: 12px;
-  color: var(--fej-text-muted);
+  line-height: 1.5;
+  pointer-events: none;
+  max-width: 240px;
+  box-shadow: 0 4px 16px rgba(27, 60, 90, 0.2);
+}
+
+.tooltip-name {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.tooltip-desc {
+  color: rgba(253, 254, 254, 0.75);
+  margin-bottom: 6px;
+}
+
+.tooltip-meta {
+  display: flex;
+  gap: 12px;
+}
+
+.tooltip-duration {
   font-variant-numeric: tabular-nums;
 }
 
-.step-error {
-  margin-top: 6px;
-  padding: 8px 10px;
-  background: rgba(214, 69, 69, 0.08);
-  border-left: 3px solid var(--fej-error);
-  border-radius: 4px;
+.tooltip-status-done    { color: var(--fej-gold); }
+.tooltip-status-warn    { color: var(--fej-warn); }
+.tooltip-status-error   { color: var(--fej-error); }
+
+/* -------- run history panel -------- */
+.history-panel {
+  margin-bottom: 20px;
+}
+
+.history-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--fej-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 0;
+  font-family: inherit;
+}
+
+.history-toggle:hover { color: var(--fej-navy); }
+
+.toggle-icon {
+  font-size: 11px;
+  transition: transform 0.2s;
+}
+
+.history-toggle[aria-expanded="true"] .toggle-icon {
+  transform: rotate(180deg);
+}
+
+.history-list {
+  margin-top: 8px;
+  border: 1px solid var(--fej-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--fej-border);
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 13px;
+}
+
+.history-row:last-child { border-bottom: none; }
+.history-row:hover      { background: var(--fej-pending-bg); }
+.history-row.active-run { background: rgba(249, 170, 16, 0.06); }
+
+.history-name {
+  flex: 1;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-time {
+  color: var(--fej-text-muted);
   font-size: 12px;
-  color: var(--fej-error);
-  white-space: pre-wrap;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: nowrap;
+}
+
+.history-steps {
+  color: var(--fej-text-muted);
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 /* -------- empty state -------- */
 .empty-state {
   text-align: center;
-  padding: 48px 16px;
+  padding: 56px 16px;
   color: var(--fej-text-muted);
 }
 
 .empty-state p {
-  font-size: 14px;
-  margin: 0 0 16px;
+  font-size: 15px;
+  margin: 0 0 20px;
 }
 
 .code-hint {
   display: inline-block;
   text-align: left;
-  background: rgba(27, 60, 90, 0.04);
-  border: 1px solid var(--fej-pending);
-  border-radius: 8px;
-  padding: 16px 20px;
+  background: var(--fej-pending-bg);
+  border: 1px solid var(--fej-border);
+  border-radius: 10px;
+  padding: 18px 24px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 13px;
   color: var(--fej-navy);
-  line-height: 1.6;
+  line-height: 1.65;
+}
+
+/* -------- warn message block (inside step markers on hover tooltip) -------- */
+.tooltip-message {
+  color: rgba(253, 254, 254, 0.85);
+  font-style: italic;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+/* -------- accessibility -------- */
+@media (prefers-reduced-motion: reduce) {
+  .connector-active .connector-dot {
+    animation: none;
+    opacity: 0.7;
+    background: var(--fej-gold);
+  }
+  .dot-running { animation: none; }
+}
+
+/* -------- dark mode -------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fej-white:      #0F1E2B;
+    --fej-navy:       #D4E8F7;
+    --fej-border:     rgba(212, 232, 247, 0.12);
+    --fej-pending-bg: rgba(212, 232, 247, 0.05);
+    --fej-text-muted: rgba(212, 232, 247, 0.5);
+  }
+
+  .card {
+    background: #152535;
+    box-shadow: 4px 4px 0 rgba(34, 163, 164, 0.4);
+  }
+
+  .code-hint {
+    background: rgba(212, 232, 247, 0.04);
+  }
+
+  .history-list {
+    background: #152535;
+  }
+
+  .step-tooltip {
+    background: #0c1a26;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
 }

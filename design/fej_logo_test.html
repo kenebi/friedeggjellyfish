@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FEJ logo animation — test harness</title>
+  <link rel="stylesheet" href="fej_logo_animation.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #FDFEFE;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #1B3C5A;
+    }
+    h1 { font-size: 20px; font-weight: 500; margin: 0 0 8px; }
+    p  { font-size: 13px; color: #5F5E5A; margin: 0 0 32px; }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 900px;
+    }
+    .demo {
+      background: #fff;
+      border: 0.5px solid rgba(27,60,90,0.15);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .demo svg {
+      width: 100%;
+      height: auto;
+      max-height: 240px;
+    }
+    .lbl {
+      display: block;
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .sub {
+      display: block;
+      font-size: 11px;
+      color: #888780;
+    }
+  </style>
+</head>
+<body>
+  <h1>FEJ logo — animation test harness</h1>
+  <p>The middle one is the running state. Compare it to the static logo on either side.</p>
+
+  <div class="row">
+    <!-- STATIC: full color, no animation -->
+    <div class="demo">
+      <object data="fej_logo.svg" type="image/svg+xml" style="width:100%;max-height:240px;"></object>
+      <span class="lbl">Static (reference)</span>
+      <span class="sub">no class applied</span>
+    </div>
+
+    <!-- RUNNING: grayscale + shadow blink -->
+    <div class="demo">
+      <!--
+        IMPORTANT: <object> tags load the SVG in a separate document
+        and CSS from THIS page won't reach inside it. To make the
+        animation work, paste the SVG inline below this comment, or
+        use a JS loader. Easiest path: replace this <object> with
+        the full SVG markup, then add class="fej-logo fej-state-running"
+        to the <svg> tag.
+      -->
+      <object data="fej_logo.svg" type="image/svg+xml" id="running-svg" style="width:100%;max-height:240px;"></object>
+      <span class="lbl">Running</span>
+      <span class="sub">grayscale + shadow blink</span>
+    </div>
+
+    <!-- Spacer / future state -->
+    <div class="demo" style="opacity:0.4;">
+      <object data="fej_logo.svg" type="image/svg+xml" style="width:100%;max-height:240px;"></object>
+      <span class="lbl">(future state)</span>
+      <span class="sub">done / error etc.</span>
+    </div>
+  </div>
+
+  <script>
+    /*
+      The <object> tag isolates the SVG in its own document, so external
+      CSS doesn't apply. This script reaches into the running-svg <object>
+      after it loads and injects the animation classes + a <link> to
+      the stylesheet inside the inner SVG document.
+    */
+    document.getElementById('running-svg').addEventListener('load', function () {
+      var doc = this.contentDocument;
+      if (!doc) return;
+      var svg = doc.querySelector('svg');
+      if (!svg) return;
+      svg.classList.add('fej-logo', 'fej-state-running');
+
+      // Inject our stylesheet into the inner SVG document
+      var link = doc.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'fej_logo_animation.css';
+      doc.documentElement.appendChild(link);
+    });
+  </script>
+</body>
+</html>

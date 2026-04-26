@@ -1,0 +1,116 @@
+/*
+  FEJ logo — workflow state animations
+  ================================================
+  Pairs with: fej_logo.svg
+
+  STATES
+  ------
+  (no class)              Static reference. Full color, no motion.
+  .fej-state-running      Workflow in progress.
+  .fej-state-done         Workflow finished successfully.
+  .fej-state-error        Workflow hit an exception.
+  .fej-state-warn         Soft fail / non-critical issue.
+
+  USAGE
+  -----
+  Add ONE state class to the <svg> element. The dashboard JS swaps
+  this class as workflow events arrive over WebSocket.
+
+    <svg class="fej-logo fej-state-running" ...>
+    <svg class="fej-logo fej-state-done"    ...>
+    <svg class="fej-logo fej-state-error"   ...>
+    <svg class="fej-logo fej-state-warn"    ...>
+
+  VISUAL HIERARCHY (locked in 2026-04-25)
+  ---------------------------------------
+  running  -> grayscale + faded + slow shadow pulse (2.5s)
+              "calm, in progress, no eye contact needed"
+
+  done     -> full color, no motion
+              "everything is fine, default brand state"
+
+  error    -> red yolk (#D64545), no motion, full color elsewhere
+              "frozen, something broke, look here"
+
+  warn     -> burnt orange yolk (#E87528) + faster yolk pulse
+              (1.2s), full color
+              "attention needed, but not broken"
+
+  COLOR REASONING
+  ---------------
+  Gold (#F9AA10) -> done    (default brand)
+  Burnt orange   -> warn    (sits between gold and red)
+  (#E87528)
+  Red (#D64545)  -> error   (terminal failure)
+
+  The warn color is intentionally midway between gold and red so
+  the three resolved states form a visual gradient of severity.
+  Combined with the pulse motion on warn, this gives users TWO
+  signals to differentiate from error:
+    1. Color hue (orange vs red)
+    2. Motion (pulsing vs still)
+  Either signal alone is enough; together they're robust against
+  small screens and color vision deficiency.
+*/
+
+/* ============================================================
+   RUNNING — workflow in progress
+   ============================================================ */
+.fej-logo.fej-state-running {
+  filter: grayscale(100%) opacity(0.5);
+}
+.fej-logo.fej-state-running #Shadow {
+  animation: fej-shadow-pulse 2.5s ease-in-out infinite;
+}
+@keyframes fej-shadow-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+/* ============================================================
+   DONE — workflow finished successfully
+   No CSS needed: the static SVG IS the done state.
+   The class exists so JS has something to add for clarity.
+   ============================================================ */
+.fej-logo.fej-state-done {
+  /* Intentionally empty. Full color, no motion. */
+}
+
+/* ============================================================
+   ERROR — workflow hit an exception
+   Yolk turns red. Everything else stays brand-default.
+   ============================================================ */
+.fej-logo.fej-state-error #Yolk path {
+  fill: #D64545;
+}
+
+/* ============================================================
+   WARN — soft fail / non-critical issue
+   Yolk turns burnt orange (between gold and red) AND pulses.
+   Motion is the secondary signal so this can't be confused
+   with error on small screens or for color vision deficiency.
+   ============================================================ */
+.fej-logo.fej-state-warn #Yolk path {
+  fill: #E87528;
+  animation: fej-yolk-pulse 1.2s ease-in-out infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+@keyframes fej-yolk-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+
+/* ============================================================
+   ACCESSIBILITY — respect prefers-reduced-motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .fej-logo.fej-state-running #Shadow {
+    animation: none;
+    opacity: 0.6;
+  }
+  .fej-logo.fej-state-warn #Yolk path {
+    animation: none;
+    /* keep burnt orange color, drop motion only */
+  }
+}

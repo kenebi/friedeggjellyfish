@@ -2,7 +2,7 @@
 friedegg.server — Local FastAPI server for the FEJ dashboard.
 
 Two WebSocket endpoints:
-  /ws/ingest    — receives events from user automation scripts (monitor.py)
+  /ws/ingest    — receives events from user automation scripts (_client.py)
   /ws/dashboard — pushes events to dashboard browsers
 
 Plus a static route at / that serves the dashboard HTML/CSS/JS.
@@ -20,6 +20,7 @@ import asyncio
 import json
 import logging
 from collections import deque
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,18 @@ _HISTORY_MAXLEN = 500
 
 
 # ---------------------------------------------------------------------------
+# Per-run aggregate state
+# ---------------------------------------------------------------------------
+
+@dataclass
+class _RunState:
+    """Tracks whether a run accumulated any errors or warnings."""
+    has_errors: bool = False
+    has_warnings: bool = False
+    final_status: str | None = None  # set on workflow_done
+
+
+# ---------------------------------------------------------------------------
 # In-memory broadcaster
 # ---------------------------------------------------------------------------
 
@@ -45,13 +58,17 @@ class Broadcaster:
     """
     Tracks connected dashboard clients and relays events from ingest to them.
 
+    Also tracks per-run aggregate state so workflow_done events carry the
+    correct final_status (done / done_with_warnings / done_with_errors).
+
     Thread-safety note: FastAPI's WebSocket handlers run in a single asyncio
-    event loop, so regular Python lists are fine here — no locks needed.
+    event loop, so regular Python lists/dicts are fine here — no locks needed.
     """
 
     def __init__(self) -> None:
         self._dashboards: set[WebSocket] = set()
         self._history: deque[dict[str, Any]] = deque(maxlen=_HISTORY_MAXLEN)
+        self._runs: dict[str, _RunState] = {}
 
     async def connect_dashboard(self, ws: WebSocket) -> None:
         await ws.accept()
@@ -67,6 +84,29 @@ class Broadcaster:
         self._dashboards.discard(ws)
 
     async def publish(self, event: dict[str, Any]) -> None:
+        run_id = event.get("run_id")
+        event_type = event.get("event_type")
+
+        # Track per-run aggregate state; inject final_status into workflow_done.
+        if run_id:
+            if event_type == "workflow_start":
+                self._runs[run_id] = _RunState()
+            elif run_id in self._runs:
+                run = self._runs[run_id]
+                if event_type == "error":
+                    run.has_errors = True
+                elif event_type == "warn":
+                    run.has_warnings = True
+                elif event_type == "workflow_done":
+                    if run.has_errors:
+                        run.final_status = "done_with_errors"
+                    elif run.has_warnings:
+                        run.final_status = "done_with_warnings"
+                    else:
+                        run.final_status = "done"
+                    # Inject into a new dict so we don't mutate the caller's object.
+                    event = {**event, "final_status": run.final_status}
+
         self._history.append(event)
         dead: list[WebSocket] = []
         for ws in self._dashboards:
@@ -127,8 +167,6 @@ async def ws_dashboard(ws: WebSocket) -> None:
     await broadcaster.connect_dashboard(ws)
     try:
         while True:
-            # We don't expect messages from the dashboard for Phase 1,
-            # but we need to keep the connection alive and handle disconnect.
             await ws.receive_text()
     except WebSocketDisconnect:
         broadcaster.disconnect_dashboard(ws)

@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>friedegg dashboard</title>
+  <title>Fried Egg Jellyfish</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+
   <header class="fej-header">
     <div class="fej-brand">
-      <div class="fej-logo-circle">
-        <span class="fej-yolk"></span>
-      </div>
-      <div>
-        <h1>friedegg</h1>
+      <div id="header-logo" class="fej-header-logo"></div>
+      <div class="fej-brand-text">
+        <h1>Fried Egg Jellyfish</h1>
         <p class="tagline">See your automations glow.</p>
       </div>
     </div>
@@ -24,24 +23,46 @@
   </header>
 
   <main class="fej-main">
+
+    <!-- Run history (collapsible) -->
+    <section id="history-panel" class="history-panel">
+      <button id="history-toggle" class="history-toggle" aria-expanded="false">
+        <span>Run History</span>
+        <span class="toggle-icon">▾</span>
+      </button>
+      <div id="history-list" class="history-list" hidden></div>
+    </section>
+
+    <!-- Active / selected workflow card -->
     <section id="workflow-card" class="card hidden">
       <div class="card-header">
         <h2 id="workflow-name">—</h2>
-        <span id="workflow-status" class="pill pill-pending">Waiting</span>
+        <span id="workflow-pill" class="pill pill-running">Running</span>
       </div>
-      <ol id="step-list" class="step-list"></ol>
+
+      <div class="current-step-block">
+        <div id="current-step-name" class="current-step-name">—</div>
+        <div id="current-step-desc" class="current-step-desc hidden"></div>
+      </div>
+
+      <div id="step-timeline" class="step-timeline"></div>
     </section>
 
+    <!-- Empty state -->
     <section id="empty-state" class="empty-state">
       <p>Run your automation to see it appear here in real time.</p>
       <pre class="code-hint">from friedegg import monitor
 
 monitor.start("My workflow")
-monitor.step("Step one")
+monitor.step("Step one", description="What this step does")
 monitor.step("Step two")
 monitor.done()</pre>
     </section>
+
   </main>
+
+  <!-- Shared tooltip (positioned by JS) -->
+  <div id="step-tooltip" class="step-tooltip hidden" role="tooltip" aria-hidden="true"></div>
 
   <script src="/static/script.js"></script>
 </body>

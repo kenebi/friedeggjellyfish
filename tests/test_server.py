@@ -23,9 +23,11 @@ _WORKFLOW_EVENT = {
 def reset_broadcaster():
     broadcaster._history.clear()
     broadcaster._dashboards.clear()
+    broadcaster._runs.clear()
     yield
     broadcaster._history.clear()
     broadcaster._dashboards.clear()
+    broadcaster._runs.clear()
 
 
 class TestBroadcaster:
@@ -48,6 +50,73 @@ class TestBroadcaster:
         for i in range(_HISTORY_MAXLEN + 10):
             asyncio.run(bc.publish({"run_id": str(i)}))
         assert len(bc._history) == _HISTORY_MAXLEN
+
+
+class TestBroadcasterAggregateState:
+    def _bc_with_start(self, run_id="r1"):
+        bc = Broadcaster()
+        asyncio.run(bc.publish({
+            "run_id": run_id,
+            "event_type": "workflow_start",
+            "workflow_name": "W",
+        }))
+        return bc
+
+    def test_workflow_start_initializes_run_state(self):
+        bc = self._bc_with_start()
+        assert "r1" in bc._runs
+        assert bc._runs["r1"].has_errors is False
+        assert bc._runs["r1"].has_warnings is False
+
+    def test_error_event_sets_has_errors(self):
+        bc = self._bc_with_start()
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "error"}))
+        assert bc._runs["r1"].has_errors is True
+        assert bc._runs["r1"].has_warnings is False
+
+    def test_warn_event_sets_has_warnings(self):
+        bc = self._bc_with_start()
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "warn"}))
+        assert bc._runs["r1"].has_warnings is True
+        assert bc._runs["r1"].has_errors is False
+
+    def test_clean_run_gets_done_final_status(self):
+        bc = self._bc_with_start()
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "workflow_done"}))
+        assert bc._runs["r1"].final_status == "done"
+
+    def test_run_with_warnings_gets_done_with_warnings(self):
+        bc = self._bc_with_start()
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "warn"}))
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "workflow_done"}))
+        assert bc._runs["r1"].final_status == "done_with_warnings"
+
+    def test_run_with_errors_gets_done_with_errors(self):
+        bc = self._bc_with_start()
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "error"}))
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "workflow_done"}))
+        assert bc._runs["r1"].final_status == "done_with_errors"
+
+    def test_errors_take_priority_over_warnings(self):
+        bc = self._bc_with_start()
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "warn"}))
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "error"}))
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "workflow_done"}))
+        assert bc._runs["r1"].final_status == "done_with_errors"
+
+    def test_workflow_done_injects_final_status_into_history(self):
+        bc = self._bc_with_start()
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "error"}))
+        asyncio.run(bc.publish({"run_id": "r1", "event_type": "workflow_done"}))
+        last = list(bc._history)[-1]
+        assert last.get("final_status") == "done_with_errors"
+
+    def test_workflow_done_does_not_mutate_original_event_dict(self):
+        bc = self._bc_with_start()
+        original = {"run_id": "r1", "event_type": "workflow_done"}
+        asyncio.run(bc.publish(original))
+        # Original dict must not have been mutated.
+        assert "final_status" not in original
 
 
 class TestHTTP:
@@ -75,7 +144,6 @@ class TestWebSocket:
         assert received["event_type"] == "workflow_start"
 
     def test_new_dashboard_replays_history(self):
-        # Pre-populate history directly to avoid timing races.
         asyncio.run(broadcaster.publish(_WORKFLOW_EVENT))
 
         with TestClient(app) as client:
@@ -96,3 +164,18 @@ class TestWebSocket:
                 received = dash.receive_json()
 
         assert received["run_id"] == "new-run"
+
+    def test_workflow_done_broadcasts_with_final_status(self):
+        done_event = {
+            **_WORKFLOW_EVENT,
+            "event_type": "workflow_done",
+            "status": "done",
+        }
+        with TestClient(app) as client:
+            with client.websocket_connect("/ws/dashboard") as dash:
+                with client.websocket_connect("/ws/ingest") as ingest:
+                    ingest.send_json(_WORKFLOW_EVENT)  # workflow_start
+                    _ = dash.receive_json()
+                    ingest.send_json(done_event)
+                    received = dash.receive_json()
+        assert received.get("final_status") == "done"
