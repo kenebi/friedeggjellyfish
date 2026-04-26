@@ -74,6 +74,40 @@ body {
   color: var(--fej-text-muted);
 }
 
+/* -------- header right cluster -------- */
+.fej-header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* -------- dark mode toggle -------- */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--fej-border);
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--fej-navy);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.theme-toggle:hover {
+  background: var(--fej-pending-bg);
+}
+
+/* In light mode: show sun (hide moon) */
+.theme-icon-dark  { display: none; }
+.theme-icon-light { display: inline; }
+
+/* In dark mode: show moon (hide sun) */
+.dark .theme-icon-light { display: none; }
+.dark .theme-icon-dark  { display: inline; }
+
 /* -------- connection indicator -------- */
 .fej-status {
   display: flex;
@@ -454,31 +488,43 @@ body {
   .dot-running { animation: none; }
 }
 
-/* -------- dark mode -------- */
+/* -------- dark mode (system preference OR .dark class on <html>) -------- */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     --fej-white:      #0F1E2B;
     --fej-navy:       #D4E8F7;
     --fej-border:     rgba(212, 232, 247, 0.12);
     --fej-pending-bg: rgba(212, 232, 247, 0.05);
     --fej-text-muted: rgba(212, 232, 247, 0.5);
   }
-
-  .card {
-    background: #152535;
-    box-shadow: 4px 4px 0 rgba(34, 163, 164, 0.4);
-  }
-
-  .code-hint {
-    background: rgba(212, 232, 247, 0.04);
-  }
-
-  .history-list {
-    background: #152535;
-  }
-
-  .step-tooltip {
-    background: #0c1a26;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  }
+  :root:not(.light) .card              { background: #152535; box-shadow: 4px 4px 0 rgba(34, 163, 164, 0.4); }
+  :root:not(.light) .code-hint         { background: rgba(212, 232, 247, 0.04); }
+  :root:not(.light) .history-list      { background: #152535; }
+  :root:not(.light) .step-tooltip      { background: #0c1a26; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
 }
+
+/* Manual dark override (.dark on <html> beats system preference) */
+html.dark {
+  --fej-white:      #0F1E2B;
+  --fej-navy:       #D4E8F7;
+  --fej-border:     rgba(212, 232, 247, 0.12);
+  --fej-pending-bg: rgba(212, 232, 247, 0.05);
+  --fej-text-muted: rgba(212, 232, 247, 0.5);
+}
+html.dark .card         { background: #152535; box-shadow: 4px 4px 0 rgba(34, 163, 164, 0.4); }
+html.dark .code-hint    { background: rgba(212, 232, 247, 0.04); }
+html.dark .history-list { background: #152535; }
+html.dark .step-tooltip { background: #0c1a26; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+
+/* Manual light override (.light on <html> beats system dark preference) */
+html.light {
+  --fej-white:      #FDFEFE;
+  --fej-navy:       #1B3C5A;
+  --fej-border:     rgba(27, 60, 90, 0.15);
+  --fej-pending-bg: rgba(27, 60, 90, 0.08);
+  --fej-text-muted: rgba(27, 60, 90, 0.55);
+}
+html.light .card         { background: #FDFEFE; box-shadow: 4px 4px 0 var(--fej-teal); }
+html.light .code-hint    { background: var(--fej-pending-bg); }
+html.light .history-list { background: #FDFEFE; }
+html.light .step-tooltip { background: var(--fej-navy); box-shadow: 0 4px 16px rgba(27,60,90,0.2); }

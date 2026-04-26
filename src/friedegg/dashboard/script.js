@@ -624,6 +624,30 @@
   }
 
   // ---------------------------------------------------------------------------
+  // Dark / light mode toggle
+  // ---------------------------------------------------------------------------
+
+  (function initTheme() {
+    const stored = localStorage.getItem("fej-theme"); // "dark" | "light" | null
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    // Determine effective theme: stored preference beats system default.
+    const isDark = stored === "dark" || (stored === null && prefersDark);
+    document.documentElement.classList.toggle("dark", isDark);
+    document.documentElement.classList.toggle("light", !isDark);
+
+    const btn = document.getElementById("theme-toggle");
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+      const nowDark = document.documentElement.classList.contains("dark");
+      document.documentElement.classList.toggle("dark", !nowDark);
+      document.documentElement.classList.toggle("light", nowDark);
+      localStorage.setItem("fej-theme", nowDark ? "light" : "dark");
+    });
+  })();
+
+  // ---------------------------------------------------------------------------
   // Boot
   // ---------------------------------------------------------------------------
 
