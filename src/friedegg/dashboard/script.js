@@ -72,6 +72,12 @@
       // Remove inline <style> block to prevent class name pollution in HTML doc.
       svg.querySelector("style")?.remove();
 
+      // Strip intrinsic width/height so CSS controls the rendered size.
+      // Without this, the 631×745 attributes on the <svg> override our CSS
+      // width/height, making every step marker 631px wide.
+      svg.removeAttribute("width");
+      svg.removeAttribute("height");
+
       // Convert class-based fills to presentation attributes.
       const classToFill = { s0: "#ffffff", s1: "#22a3a4", s2: "#1b3c5a", s3: "#f9aa10" };
       svg.querySelectorAll("[class]").forEach(el => {

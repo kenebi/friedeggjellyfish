@@ -78,7 +78,15 @@ body {
 .fej-header-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 20px;
+}
+
+/* -------- header divider -------- */
+.header-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--fej-border);
+  flex-shrink: 0;
 }
 
 /* -------- dark mode toggle -------- */
