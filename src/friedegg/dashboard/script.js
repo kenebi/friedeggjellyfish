@@ -19,6 +19,15 @@
     done_with_errors:  { label: "Done with errors",   cls: "pill-done-errors" },
   };
 
+  // Step-level pills shown inside the Run History step list.
+  const STEP_PILL_MAP = {
+    done:    { label: "Completed", cls: "pill-sm pill-step-done" },
+    warn:    { label: "Warning",   cls: "pill-sm pill-step-warn" },
+    error:   { label: "Error",     cls: "pill-sm pill-step-error" },
+    running: { label: "Running",   cls: "pill-sm pill-running" },
+    pending: { label: "Pending",   cls: "pill-sm pill-pending" },
+  };
+
   // ---------------------------------------------------------------------------
   // Runtime state
   // ---------------------------------------------------------------------------
@@ -46,6 +55,7 @@
     workflowCard:     document.getElementById("workflow-card"),
     workflowName:     document.getElementById("workflow-name"),
     workflowPill:     document.getElementById("workflow-pill"),
+    currentStepBlock: document.querySelector(".current-step-block"),
     currentStepName:  document.getElementById("current-step-name"),
     currentStepDesc:  document.getElementById("current-step-desc"),
     stepTimeline:     document.getElementById("step-timeline"),
@@ -248,6 +258,7 @@
 
       if (runningName) {
         const step = run.steps.get(runningName);
+        el.currentStepBlock.classList.remove("hidden");
         el.currentStepName.textContent = step.name;
         if (step.description) {
           el.currentStepDesc.textContent = step.description;
@@ -259,14 +270,12 @@
       }
     }
 
-    // Workflow complete or historical: show terminal status.
+    // Workflow complete or historical: pill already shows the status, hide the block.
     const fs = run.finalStatus;
     if (fs) {
-      el.currentStepName.textContent =
-        fs === "done"               ? "Workflow complete" :
-        fs === "done_with_warnings" ? "Completed with warnings" :
-                                     "Completed with errors";
+      el.currentStepBlock.classList.add("hidden");
     } else {
+      el.currentStepBlock.classList.remove("hidden");
       el.currentStepName.textContent = run.workflowName;
     }
     el.currentStepDesc.classList.add("hidden");
@@ -393,26 +402,71 @@
     const sorted = [...runs.values()].sort((a, b) => b.startedAt - a.startedAt);
 
     sorted.forEach(run => {
-      const row = document.createElement("div");
-      row.className = "history-row";
-      if (run.runId === currentRunId) row.classList.add("active-run");
+      const entry = document.createElement("div");
+      entry.className = "history-entry";
+      if (run.runId === currentRunId) entry.classList.add("active-run");
 
       const statusKey = run.finalStatus || (run.runId === currentRunId ? "running" : "running");
       const pill = PILL_MAP[statusKey] || PILL_MAP.running;
 
-      row.innerHTML = `
+      // Summary header row
+      const header = document.createElement("div");
+      header.className = "history-header";
+      header.innerHTML = `
         <span class="history-name">${escHtml(run.workflowName)}</span>
         <span class="history-time">${timeAgo(run.startedAt)}</span>
-        <span class="history-steps">${run.stepOrder.length} step${run.stepOrder.length !== 1 ? "s" : ""}</span>
         <span class="pill ${pill.cls}">${pill.label}</span>
       `;
+      entry.appendChild(header);
 
-      row.addEventListener("click", () => {
-        displayedRunId = run.runId;
-        renderCard(run);
-      });
+      // Step list
+      if (run.stepOrder.length > 0) {
+        const stepList = document.createElement("ol");
+        stepList.className = "history-step-list";
 
-      el.historyList.appendChild(row);
+        run.stepOrder.forEach(stepName => {
+          const step = run.steps.get(stepName);
+          const sp = STEP_PILL_MAP[step.status] || STEP_PILL_MAP.pending;
+          const msg = step.error_message || step.warn_message || null;
+
+          const li = document.createElement("li");
+          li.className = "history-step-row";
+          li.innerHTML = `
+            <span class="history-step-name">${escHtml(stepName)}</span>
+            <span class="history-step-dur">${formatDuration(step.duration_ms)}</span>
+            <span class="pill ${sp.cls}">${sp.label}</span>
+          `;
+
+          if (msg) {
+            const msgEl = document.createElement("div");
+            msgEl.className = `history-step-msg history-step-msg-${step.status}`;
+
+            const msgText = document.createElement("span");
+            msgText.textContent = msg;
+            msgEl.appendChild(msgText);
+
+            const copyBtn = document.createElement("button");
+            copyBtn.className = "copy-msg-btn";
+            copyBtn.textContent = "Copy";
+            copyBtn.title = "Copy message";
+            copyBtn.addEventListener("click", () => {
+              navigator.clipboard.writeText(msg).then(() => {
+                copyBtn.textContent = "Copied ✓";
+                setTimeout(() => { copyBtn.textContent = "Copy"; }, 1500);
+              });
+            });
+            msgEl.appendChild(copyBtn);
+
+            li.appendChild(msgEl);
+          }
+
+          stepList.appendChild(li);
+        });
+
+        entry.appendChild(stepList);
+      }
+
+      el.historyList.appendChild(entry);
     });
 
     // Show panel if there's at least one completed run or more than one total.
