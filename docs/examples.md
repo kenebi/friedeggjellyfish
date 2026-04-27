@@ -89,5 +89,121 @@ monitor.done()
 
 ---
 
-!!! note "More examples coming in v0.2.0"
-    Gmail inbox cleanup, Google Sheets pipeline, and web scraping examples are planned for the next release.
+## Gmail Inbox Cleanup
+
+Simulates an automation that authenticates with Gmail, finds old unread emails, and archives them in batches. Every step completes successfully — this is a clean run showing the fully-completed (gold) state.
+
+**Source:** [`examples/example_gmail_cleanup.py`](https://github.com/kenebi/friedeggjellyfish/blob/main/examples/example_gmail_cleanup.py)
+
+```python
+import time
+from friedeggjellyfish import monitor
+
+monitor.start(
+    "Gmail Inbox Cleanup",
+    description="Archive unread emails older than 30 days",
+)
+
+monitor.step("Authenticate with Gmail API", description="Loading OAuth credentials")
+time.sleep(0.5)
+
+monitor.step("Fetch candidate emails", description="Searching for unread messages > 30 days old")
+time.sleep(1.1)
+
+monitor.step("Filter by label", description="Excluding starred and important labels")
+time.sleep(0.6)
+
+monitor.step("Archive messages", description="Moving 47 emails to archive")
+time.sleep(1.4)
+
+monitor.step("Generate report", description="Summarising what was cleaned up")
+time.sleep(0.5)
+
+monitor.done()
+```
+
+**What to watch for:** All five steps turn gold as they complete. The final pill reads **Done** with no warnings or errors.
+
+---
+
+## Google Sheets Data Pipeline
+
+Simulates reading raw contact data from a Google Sheet, validating and enriching it, then writing clean results to an output tab. One step flags rows with missing fields as a non-fatal warning.
+
+**Source:** [`examples/example_sheets_pipeline.py`](https://github.com/kenebi/friedeggjellyfish/blob/main/examples/example_sheets_pipeline.py)
+
+```python
+import time
+from friedeggjellyfish import monitor
+
+monitor.start(
+    "Sheets Data Pipeline",
+    description="Validate and enrich contact data from Google Sheets",
+)
+
+monitor.step("Connect to Google Sheets API", description="Authenticating with service account")
+time.sleep(0.6)
+
+monitor.step("Read raw data", description="Loading 312 rows from 'Contacts' tab")
+time.sleep(0.9)
+
+monitor.step("Validate rows", description="Checking for required fields")
+time.sleep(0.5)
+monitor.warn("14 rows skipped — missing 'email' field")
+time.sleep(0.3)
+
+monitor.step("Enrich with company data", description="Matching domains to Clearbit profiles")
+time.sleep(1.3)
+
+monitor.step("Write to output sheet", description="Writing 298 clean rows to 'Enriched' tab")
+time.sleep(0.7)
+
+monitor.step("Send summary email", description="Notifying team of pipeline results")
+time.sleep(0.5)
+
+monitor.done()
+```
+
+**What to watch for:** The "Validate rows" step turns burnt orange after the warning. The pipeline keeps running and completes. The final pill reads **Done with warnings**.
+
+---
+
+## Competitor Price Monitor
+
+Simulates a web scraping automation that checks competitor pricing across multiple sites. One site returns an unexpected page structure — the error is caught and reported, and the workflow continues to completion.
+
+**Source:** [`examples/example_web_scraper.py`](https://github.com/kenebi/friedeggjellyfish/blob/main/examples/example_web_scraper.py)
+
+```python
+import time
+from friedeggjellyfish import monitor
+
+monitor.start(
+    "Competitor Price Monitor",
+    description="Scrape and compare product pricing across competitor sites",
+)
+
+monitor.step("Initialize scraper", description="Loading selectors and rate-limit config")
+time.sleep(0.4)
+
+monitor.step("Scrape site A", description="Fetching 24 product listings")
+time.sleep(1.0)
+
+monitor.step("Scrape site B", description="Fetching 18 product listings")
+time.sleep(0.5)
+try:
+    raise RuntimeError("Unexpected page structure — price selector returned 0 matches")
+except RuntimeError as e:
+    monitor.error(str(e))
+time.sleep(0.3)
+
+monitor.step("Parse and compare prices", description="Building price delta table")
+time.sleep(0.9)
+
+monitor.step("Save results to CSV", description="Writing report to output/prices.csv")
+time.sleep(0.4)
+
+monitor.done()
+```
+
+**What to watch for:** The "Scrape site B" step turns red after the error. Price parsing and CSV export still run. The final pill reads **Done with errors**.
