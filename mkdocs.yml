@@ -1,0 +1,57 @@
+site_name: Fried Egg Jellyfish
+site_description: Real-time visual monitoring for code-built automations.
+site_url: https://kenebi.github.io/friedeggjellyfish/
+repo_name: kenebi/friedeggjellyfish
+repo_url: https://github.com/kenebi/friedeggjellyfish
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.copy
+    - toc.follow
+
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - API Reference: api-reference.md
+  - Examples: examples.md
+  - FAQ: faq.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/kenebi/friedeggjellyfish
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/friedeggjellyfish/
