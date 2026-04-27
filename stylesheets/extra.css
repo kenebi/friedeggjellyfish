@@ -1,0 +1,24 @@
+/* FEJ brand color overrides for MkDocs Material */
+
+/* Light-mode screenshot needs a border so it doesn't bleed into the page background */
+.screenshot-light {
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+}
+
+:root,
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color:        #1B3C5A;
+  --md-primary-fg-color--light: #22A3A4;
+  --md-primary-fg-color--dark:  #1B3C5A;
+  --md-accent-fg-color:         #F9AA10;
+  --md-accent-fg-color--transparent: rgba(249, 170, 16, 0.1);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #22A3A4;
+  --md-primary-fg-color--light: #22A3A4;
+  --md-primary-fg-color--dark:  #1B3C5A;
+  --md-accent-fg-color:         #F9AA10;
+  --md-accent-fg-color--transparent: rgba(249, 170, 16, 0.1);
+}
