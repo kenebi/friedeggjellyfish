@@ -29,6 +29,7 @@ Thumbs.db
 
 # Claude Code internal
 .claude/
+CLAUDE.md
 
 # Internal design files (not for public repo)
 design/AVILANE_*
