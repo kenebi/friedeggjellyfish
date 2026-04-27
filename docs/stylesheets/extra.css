@@ -1,5 +1,11 @@
 /* FEJ brand color overrides for MkDocs Material */
 
+/* Light-mode screenshot needs a border so it doesn't bleed into the page background */
+.screenshot-light {
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+}
+
 :root,
 [data-md-color-scheme="default"] {
   --md-primary-fg-color:        #1B3C5A;

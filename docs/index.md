@@ -42,9 +42,15 @@ Your browser opens at `http://127.0.0.1:8765`. Run your script — each step app
 
 ## What it looks like
 
-![FEJ dashboard — light mode, showing Daily Lead Report with step-level detail and a warning state](assets/dashboard-light-collapse-run-history.png)
+<figure markdown>
+  ![FEJ dashboard in light mode](assets/dashboard-light-collapse-run-history.png){ .screenshot-light }
+  <figcaption>Light Mode</figcaption>
+</figure>
 
-![FEJ dashboard — dark mode, showing Daily Lead Report with step-level detail and a warning state](assets/dashboard-dark-collapse-run-history.png)
+<figure markdown>
+  ![FEJ dashboard in dark mode](assets/dashboard-dark-collapse-run-history.png)
+  <figcaption>Dark Mode</figcaption>
+</figure>
 
 Each step in your automation becomes a jellyfish node on a live timeline. Colors tell you the state at a glance:
 
