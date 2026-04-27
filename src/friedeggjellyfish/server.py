@@ -132,7 +132,7 @@ broadcaster = Broadcaster()
 # FastAPI app
 # ---------------------------------------------------------------------------
 
-app = FastAPI(title="friedeggjellyfish dashboard", version="0.1.0")
+app = FastAPI(title="friedeggjellyfish dashboard", version="0.1.1")
 
 
 @app.websocket("/ws/ingest")

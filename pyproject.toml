@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "friedeggjellyfish"
-version = "0.1.0"
+version = "0.1.1"
 description = "Real-time visual monitoring for code-built automations. See your automations glow."
 readme = "README.md"
 requires-python = ">=3.10"

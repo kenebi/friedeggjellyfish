@@ -17,5 +17,5 @@ Run the dashboard in a separate terminal:
 
 from friedeggjellyfish._client import monitor
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = ["monitor"]
