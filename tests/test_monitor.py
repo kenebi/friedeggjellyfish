@@ -1,3 +1,11 @@
+"""
+Tests for the monitor client (_client.py).
+
+Covers: Event serialization, _Monitor state transitions (start/step/warn/error/done),
+silent-fail when the server is unreachable, step description metadata,
+and atexit crash-recovery behaviour.
+"""
+
 import json
 import time
 

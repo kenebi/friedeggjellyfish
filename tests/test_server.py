@@ -1,3 +1,12 @@
+"""
+Tests for the FastAPI WebSocket server (server.py).
+
+Covers: Broadcaster history management, aggregate run-state tracking
+(errors/warnings → final_status), HTTP health and index endpoints,
+ingest→dashboard broadcast round-trip, history replay for late-joining
+dashboard clients, and workflow_done final_status injection.
+"""
+
 import asyncio
 
 import pytest
