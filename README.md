@@ -10,8 +10,7 @@ Add four lines to your script. Open the dashboard. Watch your automation glow.
 
 ---
 
-<!-- dashboard screenshot -->
-<!-- TODO: add screenshot after first real demo run -->
+![FEJ dashboard showing two completed workflow runs with step-level detail, error and warning states](docs/assets/dashboard.png)
 
 ---
 

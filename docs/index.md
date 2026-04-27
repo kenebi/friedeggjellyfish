@@ -42,6 +42,8 @@ Your browser opens at `http://127.0.0.1:8765`. Run your script — each step app
 
 ## What it looks like
 
+![FEJ dashboard showing two completed workflow runs — Payment Sync with errors and Daily Lead Report with warnings](assets/dashboard.png)
+
 Each step in your automation becomes a jellyfish node on a live timeline. Colors tell you the state at a glance:
 
 | Color | Meaning |
