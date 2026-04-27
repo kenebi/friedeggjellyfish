@@ -207,6 +207,7 @@ body {
   letter-spacing: 0.06em;
   white-space: nowrap;
   flex-shrink: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 .pill-running          { background: var(--fej-gold);  color: var(--fej-navy); }
 .pill-done             { background: var(--fej-navy);  color: var(--fej-white); }
@@ -309,9 +310,14 @@ body {
   50%       { opacity: 1; background: var(--fej-gold); }
 }
 
-.connector-gold  .connector-dot { background: var(--fej-gold);  opacity: 1; }
+.connector-gold  .connector-dot { background: var(--fej-gold);  opacity: 1; animation: conn-solidify 0.3s ease-out both; }
 .connector-warn  .connector-dot { background: var(--fej-warn);  opacity: 1; }
 .connector-error .connector-dot { background: var(--fej-error); opacity: 1; }
+
+@keyframes conn-solidify {
+  from { opacity: 0.3; }
+  to   { opacity: 1; }
+}
 
 /* -------- corner connector (L-shape between rows) -------- */
 .corner-connector {
@@ -564,6 +570,7 @@ body {
     opacity: 0.7;
     background: var(--fej-gold);
   }
+  .connector-gold .connector-dot { animation: none; }
   .dot-running { animation: none; }
 }
 

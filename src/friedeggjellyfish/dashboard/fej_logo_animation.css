@@ -69,11 +69,17 @@
 
 /* ============================================================
    DONE — workflow finished successfully
-   No CSS needed: the static SVG IS the done state.
-   The class exists so JS has something to add for clarity.
+   Reveal animation: grayscale/faded → full color.
+   Plays each time a step marker is inserted into the DOM as
+   "done" (timeline is re-rendered on each event, so the
+   animation fires exactly when a step transitions to done).
    ============================================================ */
 .fej-logo.fej-state-done {
-  /* Intentionally empty. Full color, no motion. */
+  animation: fej-reveal 0.35s ease-out both;
+}
+@keyframes fej-reveal {
+  from { filter: grayscale(100%) opacity(0.5); }
+  to   { filter: none; }
 }
 
 /* ============================================================
@@ -112,5 +118,8 @@
   .fej-logo.fej-state-warn #Yolk path {
     animation: none;
     /* keep burnt orange color, drop motion only */
+  }
+  .fej-logo.fej-state-done {
+    animation: none;
   }
 }

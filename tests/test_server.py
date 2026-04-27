@@ -188,3 +188,43 @@ class TestWebSocket:
                     ingest.send_json(done_event)
                     received = dash.receive_json()
         assert received.get("final_status") == "done"
+
+    def test_error_event_produces_done_with_errors(self):
+        error_event = {
+            **_WORKFLOW_EVENT,
+            "event_type": "error",
+            "status": "error",
+            "error_message": "Something blew up",
+        }
+        done_event = {**_WORKFLOW_EVENT, "event_type": "workflow_done", "status": "done"}
+
+        with TestClient(app) as client:
+            with client.websocket_connect("/ws/dashboard") as dash:
+                with client.websocket_connect("/ws/ingest") as ingest:
+                    ingest.send_json(_WORKFLOW_EVENT)  # workflow_start
+                    _ = dash.receive_json()
+                    ingest.send_json(error_event)
+                    _ = dash.receive_json()
+                    ingest.send_json(done_event)
+                    received = dash.receive_json()
+        assert received.get("final_status") == "done_with_errors"
+
+    def test_warn_event_produces_done_with_warnings(self):
+        warn_event = {
+            **_WORKFLOW_EVENT,
+            "event_type": "warn",
+            "status": "warn",
+            "error_message": "Low disk space",
+        }
+        done_event = {**_WORKFLOW_EVENT, "event_type": "workflow_done", "status": "done"}
+
+        with TestClient(app) as client:
+            with client.websocket_connect("/ws/dashboard") as dash:
+                with client.websocket_connect("/ws/ingest") as ingest:
+                    ingest.send_json(_WORKFLOW_EVENT)  # workflow_start
+                    _ = dash.receive_json()
+                    ingest.send_json(warn_event)
+                    _ = dash.receive_json()
+                    ingest.send_json(done_event)
+                    received = dash.receive_json()
+        assert received.get("final_status") == "done_with_warnings"
