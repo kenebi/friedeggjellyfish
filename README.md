@@ -10,7 +10,9 @@ Add four lines to your script. Open the dashboard. Watch your automation glow.
 
 ---
 
-![FEJ dashboard showing two completed workflow runs with step-level detail, error and warning states](docs/assets/dashboard.png)
+![FEJ dashboard — light mode](docs/assets/dashboard-light-collapse-run-history.png)
+
+![FEJ dashboard — dark mode](docs/assets/dashboard-dark-collapse-run-history.png)
 
 ---
 
