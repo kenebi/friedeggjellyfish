@@ -1,13 +1,16 @@
 """
-Error-state smoke test for FEJ.
+Example: Payment Sync with Error
 
-Verifies the red error UI: one step raises a real exception, monitor.error()
-captures the traceback automatically, and the workflow completes with
-"DONE WITH ERRORS".
+Simulates a multi-step automation that syncs Stripe payment records
+to a database. One step raises a real exception to demonstrate how
+FEJ captures errors and marks the workflow "DONE WITH ERRORS".
+
+Demonstrates: monitor.start(), .step(), .error(), .done()
 
 Before running:
-  1. In a separate terminal with (.venv) active: friedeggjellyfish dashboard
-  2. Then run this file: python examples/error_smoke_test.py
+  1. In a separate terminal, run: friedeggjellyfish dashboard
+  2. The browser opens at http://127.0.0.1:8765
+  3. Run this file: python examples/example_payment_sync.py
 """
 
 import time
@@ -29,7 +32,6 @@ time.sleep(0.5)
 try:
     raise ValueError("Record #TXN-4821 is missing required field 'currency'")
 except ValueError as e:
-    # details= is omitted so monitor.error() auto-captures the traceback.
     monitor.error(str(e))
 time.sleep(0.3)
 
@@ -41,5 +43,5 @@ time.sleep(0.5)
 
 monitor.done()
 
-print("Error smoke test complete. Check the dashboard for the red error state.")
+print("Done. Check the dashboard for the error state.")
 time.sleep(0.5)

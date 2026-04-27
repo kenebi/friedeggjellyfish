@@ -1,15 +1,15 @@
 """
-Smoke test for FEJ — simulates a typical multi-step automation.
+Example: Daily Lead Report
 
-Exercises Phase 1.2 features:
-  - step() description parameter
-  - monitor.warn() (soft warning, workflow continues)
-  - All four jellyfish states visible in the timeline
+Simulates a multi-step automation that pulls leads from a CRM,
+scores them against analytics data, and sends a summary email.
+
+Demonstrates: monitor.start(), .step(), .warn(), .done()
 
 Before running:
-  1. In a separate terminal with (.venv) active, run: friedeggjellyfish dashboard
-  2. The browser should open at http://127.0.0.1:8765
-  3. Then run this file: python examples/smoke_test.py
+  1. In a separate terminal, run: friedeggjellyfish dashboard
+  2. The browser opens at http://127.0.0.1:8765
+  3. Run this file: python examples/example_lead_report.py
 """
 
 import time
@@ -39,6 +39,5 @@ time.sleep(0.7)
 
 monitor.done()
 
-print("Smoke test complete. Check the dashboard.")
-# Give the background sender a moment to flush before the script exits.
+print("Done. Check the dashboard.")
 time.sleep(0.5)
